@@ -4,22 +4,21 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported as isAnalyticsSupported } from 'firebase/analytics';
 
-// Firebase configuration with environment variables and production fallbacks
+// Firebase configuration strictly loaded from environment variables (.env)
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDJZHrIKTTOaXaW6OWyOq4u-QnGRFKwX04",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "kalahari-77856.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "kalahari-77856",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "kalahari-77856.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "963487185406",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:963487185406:web:07e7f4f587430a8ba8a8af",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-LVF6DBPYWQ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ""
 };
 
 // Check if valid Firebase configuration is active
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && 
-  firebaseConfig.apiKey.startsWith('AIzaSy') &&
-  firebaseConfig.projectId === 'kalahari-77856'
+  firebaseConfig.projectId
 );
 
 let app = null;
@@ -35,11 +34,11 @@ try {
   storage = getStorage(app);
 
   // Initialize analytics safely if supported by browser environment
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
     isAnalyticsSupported().then((supported) => {
       if (supported) {
         analytics = getAnalytics(app);
-        console.info("📊 [Kalahari.ai] Firebase Analytics initialized (G-LVF6DBPYWQ)");
+        console.info("📊 [Kalahari.ai] Firebase Analytics initialized");
       }
     }).catch(() => {});
   }
