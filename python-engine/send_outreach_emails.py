@@ -1254,11 +1254,14 @@ def dispatch_smtp(dry_run=True):
         print("To send live emails, configure: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS")
         sys.exit(1)
 
+    smtp_pass = smtp_pass.replace(" ", "").strip()
+
     print(f"Connecting to SMTP server {smtp_host}:{smtp_port} as {smtp_user}...")
     server = smtplib.SMTP(smtp_host, smtp_port)
     server.starttls()
     server.login(smtp_user, smtp_pass)
 
+    import time
     success_count = 0
     for idx, c in enumerate(OUTREACH_CAMPAIGNS, start=1):
         try:
@@ -1272,6 +1275,7 @@ def dispatch_smtp(dry_run=True):
             server.send_message(msg)
             print(f"✓ [{idx}/40] Dispatched to {c['company']} <{c['to']}>")
             success_count += 1
+            time.sleep(1.5)  # respectful pacing for SMTP delivery
         except Exception as e:
             print(f"✗ [{idx}/40] Failed sending to {c['company']}: {e}")
 
