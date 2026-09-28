@@ -94,23 +94,25 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
             )}
           </NavLink>
 
-          {/* Admin Route Link */}
-          <NavLink
-            to="/admin"
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition relative ${
-                isActive
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/60'
-              }`
-            }
-          >
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-            <span>Admin Control</span>
-            {pendingTicketsCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-red-500 absolute -top-1 -right-1"></span>
-            )}
-          </NavLink>
+          {/* Admin Route Link (Only visible when authenticated as Administrator) */}
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition relative ${
+                  isActive
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/60'
+                }`
+              }
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+              <span>Admin Desk</span>
+              {pendingTicketsCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-red-500 absolute -top-1 -right-1"></span>
+              )}
+            </NavLink>
+          )}
         </nav>
 
         {/* Right CTA / Auth Status */}
@@ -148,7 +150,7 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition"
             >
               <LogIn className="w-3.5 h-3.5 text-sky-400" />
-              <span>Sign In / Demo</span>
+              <span>Client Portal</span>
             </Link>
           )}
         </div>
@@ -160,7 +162,9 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
         <NavLink to="/customs" className={mobileNavLinkClass}>Customs</NavLink>
         <NavLink to="/tenders" className={mobileNavLinkClass}>Tenders</NavLink>
         <NavLink to="/workspace" className={mobileNavLinkClass}>Workspace</NavLink>
-        <NavLink to="/admin" className={({ isActive }) => `px-2.5 py-1.5 rounded-lg text-xs font-bold ${isActive ? 'bg-slate-900 text-white' : 'bg-amber-100 text-amber-900'}`}>Admin</NavLink>
+        {isAdmin && (
+          <NavLink to="/admin" className={({ isActive }) => `px-2.5 py-1.5 rounded-lg text-xs font-bold ${isActive ? 'bg-slate-900 text-white' : 'bg-amber-100 text-amber-900'}`}>Admin</NavLink>
+        )}
       </div>
     </header>
   );

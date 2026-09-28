@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Building, Mail, User, ShieldCheck, Zap, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Lock, Building, Mail, User, ShieldCheck, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { login, registerCompany, loginAsDemo } = useAuth();
+  const { login, registerCompany } = useAuth();
 
   const redirectPath = searchParams.get('redirect') || '/customs';
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -39,9 +39,9 @@ export default function LoginPage() {
     } catch (err) {
       console.error("Auth error:", err);
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
-        setAuthError("Invalid corporate email or password. Please verify your credentials or use 1-click Demo below.");
+        setAuthError("Invalid corporate email or password. Please verify your credentials.");
       } else if (err.code === 'auth/email-already-in-use') {
-        setAuthError("This email address is already registered. Please switch to 'Sign In' or use demo evaluation.");
+        setAuthError("This email address is already registered. Please switch to 'Sign In'.");
       } else if (err.code === 'auth/weak-password') {
         setAuthError("Password must be at least 6 characters long.");
       } else {
@@ -49,17 +49,6 @@ export default function LoginPage() {
       }
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleDemo = (role) => {
-    loginAsDemo(role);
-    if (role === 'admin') {
-      navigate('/admin');
-    } else if (role === 'contractor') {
-      navigate('/tenders');
-    } else {
-      navigate('/customs');
     }
   };
 
@@ -220,37 +209,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* 1-Click Evaluation Bar */}
-        <div className="pt-6 border-t border-slate-100 text-center space-y-3">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-            Instant 1-Click Demo Evaluation
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleDemo("clearing")}
-              className="py-2.5 px-3 rounded-xl border border-slate-200 hover:border-sky-500 text-[11px] font-bold text-slate-700 hover:text-sky-700 hover:bg-sky-50 transition flex items-center justify-center gap-1.5"
-            >
-              <Zap className="w-3.5 h-3.5 text-sky-500" />
-              <span>Demo Broker</span>
-            </button>
-            <button
-              onClick={() => handleDemo("contractor")}
-              className="py-2.5 px-3 rounded-xl border border-slate-200 hover:border-emerald-500 text-[11px] font-bold text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 transition flex items-center justify-center gap-1.5"
-            >
-              <Zap className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Demo Contractor</span>
-            </button>
-          </div>
-          <button
-            onClick={() => handleDemo("admin")}
-            className="w-full py-2 px-3 rounded-xl border border-amber-200 hover:border-amber-400 text-[11px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 transition flex items-center justify-center gap-1.5"
-          >
-            <Lock className="w-3.5 h-3.5 text-amber-600" />
-            <span>Master Admin Login (Gift Jr Letso Nakedi)</span>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 pt-2">
+        <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 pt-4 border-t border-slate-100">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Botswana DPA Section 74 Compliant Architecture</span>
         </div>

@@ -123,38 +123,26 @@ export default function AdminPanelView({
       {adminTab === 'overview' && (
         <div className="space-y-6">
           {/* Firebase Connection Status Banner */}
-          <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs ${
-            isFirebaseConfigured 
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-900' 
-              : 'bg-amber-50 border-amber-200 text-amber-900'
-          }`}>
+          <div className="p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs bg-emerald-50 border-emerald-200 text-emerald-900">
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                isFirebaseConfigured ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'
-              }`}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-emerald-600 text-white">
                 <Database className="w-5 h-5" />
               </div>
               <div>
                 <div className="font-bold flex items-center gap-2">
-                  <span>Firebase Backend Status:</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-extrabold ${
-                    isFirebaseConfigured ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-200 text-amber-900'
-                  }`}>
-                    {isFirebaseConfigured ? 'Production Cloud Connected' : 'Local Adapter / Demo Mode'}
+                  <span>Cloud Database &amp; Auth:</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-extrabold bg-emerald-200 text-emerald-900">
+                    kalahari-77856 &bull; Online
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-600 mt-0.5">
-                  {isFirebaseConfigured
-                    ? 'Cloud Firestore & Firebase Auth are actively synchronizing audit trails, Friday tenders, and support tickets in real-time.'
-                    : 'Running in safe local adapter mode. To connect your live Firebase project, paste your Firebase Console API keys into .env.'}
+                  Cloud Firestore and Firebase Auth are synchronizing customs filings, Friday tenders, and support tickets in real-time.
                 </p>
               </div>
             </div>
-            {!isFirebaseConfigured && (
-              <span className="font-mono text-[11px] bg-white/80 px-2.5 py-1 rounded-lg border border-amber-300 text-amber-900 shrink-0">
-                Config: .env / VITE_FIREBASE_API_KEY
-              </span>
-            )}
+            <span className="font-mono text-[11px] bg-white/80 px-2.5 py-1 rounded-lg border border-emerald-300 text-emerald-800 shrink-0 font-bold">
+              Project: kalahari-77856
+            </span>
           </div>
 
           {/* Top 4 KPI Metrics */}

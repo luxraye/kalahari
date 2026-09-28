@@ -197,6 +197,9 @@ function AppContent() {
               <a href="tel:+26772161038" className="hover:text-white transition">
                 +267 72161038
               </a>
+              <a href="/admin" className="hover:text-slate-300 transition text-slate-600 border-l border-slate-800 pl-4">
+                Operations
+              </a>
             </div>
           </div>
         </footer>

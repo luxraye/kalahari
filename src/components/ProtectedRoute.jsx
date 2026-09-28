@@ -76,17 +76,10 @@ export function ProtectedAdminRoute({ children }) {
         </button>
       </form>
 
-      {/* Quick unlock helper for development / G. Nakedi */}
-      <div className="pt-4 border-t border-slate-100 text-center space-y-2">
-        <span className="text-[10px] text-slate-400 block font-mono">
-          Demo Key: <code className="text-slate-600 font-bold">kalahari2026</code>
-        </span>
-        <button
-          onClick={() => loginAsDemo("admin")}
-          className="text-xs font-bold text-sky-700 hover:text-sky-800 underline block mx-auto"
-        >
-          One-Click Unlock as Gift Jr Letso Nakedi
-        </button>
+      <div className="pt-2 text-center">
+        <p className="text-[11px] text-slate-400">
+          Authorized personnel only. Access attempts are audited and logged.
+        </p>
       </div>
     </div>
   );

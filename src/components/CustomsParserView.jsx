@@ -132,7 +132,7 @@ export default function CustomsParserView({ onSaveDeclaration }) {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow transition"
             >
               <Zap className="w-4 h-4 text-sky-400" />
-              <span>Load Sample SA Supplier Invoice (ZAR 321,000)</span>
+              <span>Evaluate Commercial Invoice (ZAR 321,000)</span>
             </button>
             <span className="text-xs text-slate-400">Current File: <span className="font-mono text-slate-700 font-semibold">{uploadedFileName}</span></span>
           </div>
