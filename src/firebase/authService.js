@@ -13,7 +13,6 @@ export const MASTER_ADMIN_EMAILS = [
   "taylith338@gmail.com"
 ];
 export const MASTER_ADMIN_EMAIL = "gnakedi@bloodchain.life";
-export const MASTER_ADMIN_PASSCODE = "kalahari2026";
 
 /**
  * Register a new Botswana company with Firebase Auth and store profile in Firestore
@@ -79,20 +78,6 @@ export async function registerWithFirebase(email, password, profileData) {
  */
 export async function signInWithFirebase(email, password) {
   const isMasterAdmin = MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
-
-  // Check Master Admin passcode override
-  if ((isMasterAdmin || password === MASTER_ADMIN_PASSCODE) && password === MASTER_ADMIN_PASSCODE) {
-    return {
-      uid: "admin-master",
-      email: email.includes('@') ? email : MASTER_ADMIN_EMAIL,
-      company: "Kalahari.ai Operations (Master)",
-      tin: "C0000000001",
-      contactName: "Gift Jr Letso Nakedi",
-      phone: "+267 72161038",
-      role: "admin",
-      ppraCode: "Master Administrator"
-    };
-  }
 
   if (!isFirebaseConfigured || !auth) {
     // Fallback adapter
@@ -171,7 +156,7 @@ export function onFirebaseAuthStateChanged(callback) {
         uid: user.uid,
         email: user.email,
         contactName: user.displayName || "Representative",
-        role: user.email?.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase() ? "admin" : "client"
+        role: MASTER_ADMIN_EMAILS.includes(user.email?.toLowerCase()) ? "admin" : "client"
       };
 
       if (db) {
