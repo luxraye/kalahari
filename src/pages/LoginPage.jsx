@@ -1,271 +1,47 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Building, Mail, User, ShieldCheck, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Lock, Building, Mail, User, ShieldCheck, ArrowLeft, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login, registerCompany } = useAuth();
-
   const redirectPath = searchParams.get('redirect') || '/customs';
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
-  const [mode, setMode] = useState(initialMode); // 'login' | 'register'
-
-  const [formData, setFormData] = useState({
-    company: '',
-    tin: '',
-    contactName: '',
-    email: '',
-    phone: '',
-    password: '',
-    ppraCode: 'Customs Clearing Agent'
-  });
-
+  const [mode, setMode] = useState(initialMode);
+  const [formData, setFormData] = useState({ company: '', tin: '', contactName: '', email: '', phone: '', password: '', ppraCode: 'Customs Clearing Agent' });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authError, setAuthError] = useState("");
+  const [authError, setAuthError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setAuthError("");
-
+    setAuthError('');
     try {
-      if (mode === 'login') {
-        await login(formData.email, formData.password);
-      } else {
-        await registerCompany(formData);
-      }
+      if (mode === 'login') await login(formData.email, formData.password);
+      else await registerCompany(formData);
       navigate(redirectPath);
     } catch (err) {
-      console.error("Auth error:", err);
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
-        setAuthError("Invalid corporate email or password. Please verify your credentials.");
-      } else if (err.code === 'auth/email-already-in-use') {
-        setAuthError("This email address is already registered. Please switch to 'Sign In'.");
-      } else if (err.code === 'auth/weak-password') {
-        setAuthError("Password must be at least 6 characters long.");
-      } else {
-        setAuthError(err.message || "Authentication failed. Please verify your connection.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+      console.error('Auth error:', err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') setAuthError('Invalid corporate email or password. Please verify your credentials.');
+      else if (err.code === 'auth/email-already-in-use') setAuthError("This email address is already registered. Please switch to 'Sign In'.");
+      else if (err.code === 'auth/weak-password') setAuthError('Password must be at least 6 characters long.');
+      else setAuthError(err.message || 'Authentication failed. Please verify your connection.');
+    } finally { setIsSubmitting(false); }
   };
 
-  const getRedirectNotice = () => {
-    if (redirectPath.includes('customs')) {
-      return {
-        title: "BURS Customs Engine Access",
-        text: "Please sign in or register your Botswana clearing firm to process invoices and organize your SAD 500 audit trail."
-      };
-    }
-    if (redirectPath.includes('tenders')) {
-      return {
-        title: "Friday Tender Radar Access",
-        text: "Please sign in or register to track, filter, and bookmark tenders matching your company's PPRA codes."
-      };
-    }
-    return null;
-  };
-
-  const redirectNotice = getRedirectNotice();
+  const redirectNotice = redirectPath.includes('customs') ? { title: 'BURS Customs Engine access', text: 'Sign in or register your Botswana clearing firm to process invoices and organize your SAD 500 audit trail.' } : redirectPath.includes('tenders') ? { title: 'Friday Tender Radar access', text: 'Sign in or register to track, filter, and bookmark tenders matching your company's PPRA codes.' } : null;
+  const update = (key, value) => setFormData({ ...formData, [key]: value });
 
   return (
-    <div className="max-w-md mx-auto my-12 px-4 animate-fade-in">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 mb-6 transition">
-        <ArrowLeft className="w-3.5 h-3.5" />
-        <span>Back to Public Overview</span>
-      </Link>
-
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
-        
-        {/* Contextual Notice if redirected */}
-        {redirectNotice && (
-          <div className="bg-sky-50 border border-sky-200/80 rounded-2xl p-3.5 text-xs text-sky-950 flex items-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
-            <div>
-              <strong className="block font-bold text-sky-900">{redirectNotice.title}</strong>
-              <span className="text-slate-600">{redirectNotice.text}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-slate-900 text-sky-400 flex items-center justify-center mx-auto shadow-md">
-            <Lock className="w-6 h-6" />
-          </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            {mode === 'login' ? 'Client Portal Sign In' : 'Register Botswana Company'}
-          </h2>
-          <p className="text-xs text-slate-500">
-            {mode === 'login' 
-              ? 'Access your BURS SAD 500 filing trail and Friday tenders' 
-              : 'Setup automated customs clearance and PPRA tender radar'}
-          </p>
-        </div>
-
-        {/* Tab switch */}
-        <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-600">
-          <button
-            onClick={() => setMode('login')}
-            className={`flex-1 py-2 rounded-lg transition ${
-              mode === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-900'
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => setMode('register')}
-            className={`flex-1 py-2 rounded-lg transition ${
-              mode === 'register' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-900'
-            }`}
-          >
-            Register Company
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          {mode === 'register' && (
-            <>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Company / Broker Name</label>
-                <div className="relative">
-                  <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  <input
-                    type="text"
-                    required
-                    value={formData.company}
-                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-sky-500 outline-none"
-                    placeholder="e.g. Kalahari Express Logistics"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">BURS Tax Identification (TIN)</label>
-                <input
-                  type="text"
-                  value={formData.tin}
-                  onChange={(e) => setFormData({ ...formData, tin: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-sky-500 outline-none font-mono"
-                  placeholder="e.g. C0981248101"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Authorized Representative</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  <input
-                    type="text"
-                    required
-                    value={formData.contactName}
-                    onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-sky-500 outline-none"
-                    placeholder="e.g. Lesego Moeti"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Operating Domain / PPRA Code</label>
-                <select
-                  value={formData.ppraCode}
-                  onChange={(e) => setFormData({ ...formData, ppraCode: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-white"
-                >
-                  <option value="Customs Clearing Agent">Customs Clearing Agent / Freight Broker</option>
-                  <option value="Code 03">Code 03: Civil Engineering &amp; Road Works</option>
-                  <option value="Code 120">Code 120: ICT Technical Support &amp; Systems</option>
-                  <option value="Code 10">Code 10: Borehole Drilling &amp; Water Engineering</option>
-                  <option value="Code 02">Code 02: Electrical Works &amp; Substations</option>
-                  <option value="Code 211">Code 211: Medical Equipment &amp; Supplies</option>
-                </select>
-              </div>
-            </>
-          )}
-
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Corporate Email Address</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-sky-500 outline-none"
-                placeholder="name@company.co.bw"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-              <input
-                type="password"
-                required
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-sky-500 outline-none"
-                placeholder="••••••••••••"
-              />
-            </div>
-          </div>
-
-          {authError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-              {authError}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 rounded-xl font-bold bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50 shadow-md transition text-xs flex items-center justify-center gap-2 mt-2"
-          >
-            <span>
-              {isSubmitting 
-                ? (mode === 'login' ? 'Authenticating with Firebase...' : 'Registering Organization...') 
-                : (mode === 'login' ? 'Sign In to Workspace' : 'Register & Launch Portal')}
-            </span>
-            <ArrowRight className="w-4 h-4 text-sky-400" />
-          </button>
-        </form>
-
-        {/* Why Accounts Matter Section */}
-        <div className="pt-4 border-t border-slate-100 space-y-2.5 text-left">
-          <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
-            <span>Why Create a Kalahari.ai Company Account?</span>
-          </div>
-          <ul className="text-[11px] text-slate-600 space-y-2">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong>Consignment Vault:</strong> Organizes every commercial invoice and generated BURS SAD 500 declaration under your company TIN for permanent tax audit defense.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong>Friday Gazette Radar:</strong> Filter, bookmark, and track tenders specifically matching your company's PPRA classification codes.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-              <span><strong>Local Compliance:</strong> Strictly satisfies Section 74 of the Botswana Data Protection Act (DPA) without cross-border cloud leakage.</span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 pt-2 border-t border-slate-100">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Botswana DPA Section 74 Compliant Architecture</span>
-        </div>
-
+    <div className="mx-auto grid min-h-[calc(100vh-9rem)] max-w-5xl items-center gap-10 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:py-16">
+      <div className="hidden lg:block"><Link to="/" className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 transition hover:text-slate-950"><ArrowLeft className="h-3.5 w-3.5" />Back to public overview</Link><div className="mt-12 max-w-md"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-sky-300 shadow-lg"><Sparkles className="h-5 w-5" /></div><p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-sky-600">Your operational home base</p><h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950">Keep every important trade decision in reach.</h1><p className="mt-5 text-sm leading-7 text-slate-600">Your company account keeps customs history, tender opportunities, and the next action organized in one secure workspace.</p><div className="mt-8 space-y-4 text-sm font-semibold text-slate-700"><div className="flex gap-3"><CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /><span>Return to your work without starting over.</span></div><div className="flex gap-3"><CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /><span>Keep your company context attached to every workflow.</span></div><div className="flex gap-3"><CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /><span>Use the right tool for customs or tenders today.</span></div></div></div></div>
+      <div className="w-full max-w-xl justify-self-center rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-900/10 sm:p-8"><Link to="/" className="mb-7 inline-flex items-center gap-2 text-xs font-bold text-slate-500 transition hover:text-slate-950 lg:hidden"><ArrowLeft className="h-3.5 w-3.5" />Back to public overview</Link>{redirectNotice && <div className="mb-6 flex items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-xs text-sky-950"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-600" /><div><strong className="block font-black text-sky-900">{redirectNotice.title}</strong><span className="mt-1 block leading-5 text-slate-600">{redirectNotice.text}</span></div></div>}<div className="flex items-start justify-between gap-6"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-sky-600">Kalahari.ai workspace</p><h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">{mode === 'login' ? 'Welcome back.' : 'Set up your company.'}</h2><p className="mt-2 text-sm leading-6 text-slate-500">{mode === 'login' ? 'Sign in to continue where your team left off.' : 'A few details are all you need to get started.'}</p></div><div className="hidden h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-sky-300 sm:flex"><Lock className="h-5 w-5" /></div></div>
+        <div className="mt-7 grid grid-cols-2 rounded-2xl bg-slate-100 p-1 text-xs font-black text-slate-600"><button type="button" onClick={() => setMode('login')} className={mode === 'login' ? 'rounded-xl bg-white py-2.5 text-slate-950 shadow-sm' : 'rounded-xl py-2.5 transition hover:text-slate-950'}>Sign in</button><button type="button" onClick={() => setMode('register')} className={mode === 'register' ? 'rounded-xl bg-white py-2.5 text-slate-950 shadow-sm' : 'rounded-xl py-2.5 transition hover:text-slate-950'}>Register company</button></div>
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">{mode === 'register' && <><div><label className="mb-1.5 block text-xs font-bold text-slate-700">Company / broker name</label><div className="relative"><Building className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="text" required value={formData.company} onChange={(e) => update('company', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10" placeholder="e.g. Kalahari Express Logistics" /></div></div><div><label className="mb-1.5 block text-xs font-bold text-slate-700">BURS tax identification (TIN)</label><input type="text" value={formData.tin} onChange={(e) => update('tin', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 font-mono text-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10" placeholder="e.g. C0981248101" /></div><div><label className="mb-1.5 block text-xs font-bold text-slate-700">Authorized representative</label><div className="relative"><User className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="text" required value={formData.contactName} onChange={(e) => update('contactName', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10" placeholder="e.g. Lesego Moeti" /></div></div><div><label className="mb-1.5 block text-xs font-bold text-slate-700">Operating domain / PPRA code</label><select value={formData.ppraCode} onChange={(e) => update('ppraCode', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10"><option value="Customs Clearing Agent">Customs Clearing Agent / Freight Broker</option><option value="Code 03">Code 03: Civil Engineering &amp; Road Works</option><option value="Code 120">Code 120: ICT Technical Support &amp; Systems</option><option value="Code 10">Code 10: Borehole Drilling &amp; Water Engineering</option><option value="Code 02">Code 02: Electrical Works &amp; Substations</option><option value="Code 211">Code 211: Medical Equipment &amp; Supplies</option></select></div></>}
+          <div><label className="mb-1.5 block text-xs font-bold text-slate-700">Corporate email address</label><div className="relative"><Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="email" required value={formData.email} onChange={(e) => update('email', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10" placeholder="name@company.co.bw" /></div></div><div><label className="mb-1.5 block text-xs font-bold text-slate-700">Password</label><div className="relative"><Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="password" required value={formData.password} onChange={(e) => update('password', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10" placeholder="••••••••••••" /></div></div>
+          {authError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold leading-5 text-red-700">{authError}</div>}<button type="submit" disabled={isSubmitting} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 py-3.5 text-sm font-black text-white shadow-lg shadow-slate-950/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"><span>{isSubmitting ? (mode === 'login' ? 'Signing you in…' : 'Creating your workspace…') : (mode === 'login' ? 'Sign in to workspace' : 'Create company workspace')}</span><ArrowRight className="h-4 w-4 text-sky-300" /></button></form><div className="mt-7 flex items-center justify-center gap-2 border-t border-slate-100 pt-5 text-[11px] font-semibold text-slate-400"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />Protected company workspace access</div>
       </div>
     </div>
   );
