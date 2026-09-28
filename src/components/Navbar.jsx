@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   Cpu, Phone, Mail, MessageSquare, User, FileSpreadsheet, 
-  Radar, History, LogIn, LogOut, Home, ShieldAlert 
+  Radar, History, LogIn, LogOut, Home, ShieldAlert, Lock 
 } from 'lucide-react';
 
 export default function Navbar({ starredCount = 0, historyCount = 0, pendingTicketsCount = 0 }) {
