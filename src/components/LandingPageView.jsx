@@ -44,7 +44,7 @@ export default function LandingPageView() {
             className="w-full sm:w-auto px-6 py-4 rounded-2xl text-sm font-bold bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-200 flex items-center justify-center gap-2 transition"
           >
             <Lock className="w-4 h-4 text-sky-600" />
-            <span>Client Sign In / Demo</span>
+            <span>Client Portal</span>
           </Link>
         </div>
 

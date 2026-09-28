@@ -29,7 +29,7 @@ import {
 
 function AppContent() {
   const location = useLocation();
-  const { currentUser, setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser, isAdmin } = useAuth();
 
   // 1. Live Tenders State (synced with Firestore / Initial)
   const [tenders, setTenders] = useState(INITIAL_TENDERS);
@@ -61,7 +61,7 @@ function AppContent() {
     }
   };
 
-  // 2. Live Customs Audit History Trail (synced with Firestore)
+  // 2. Live Customs Audit History Trail (synced with Firestore for logged-in user)
   const [history, setHistory] = useState([
     {
       id: "decl-init-1",
@@ -76,7 +76,8 @@ function AppContent() {
   ]);
 
   useEffect(() => {
-    const unsubscribe = subscribeCustomsHistory(currentUser?.uid, (data) => {
+    if (!currentUser?.uid) return;
+    const unsubscribe = subscribeCustomsHistory(currentUser.uid, (data) => {
       if (data && data.length > 0) {
         setHistory(data);
       }
@@ -86,27 +87,32 @@ function AppContent() {
 
   const handleSaveDeclaration = async (newRecord) => {
     setHistory(prev => [newRecord, ...prev]);
-    try {
-      await saveCustomsDeclarationToFirestore(newRecord, currentUser?.uid);
-    } catch (e) {
-      console.warn("Firestore declaration save warning:", e);
+    if (currentUser?.uid) {
+      try {
+        await saveCustomsDeclarationToFirestore(newRecord, currentUser.uid);
+      } catch (e) {
+        console.warn("Firestore declaration save warning:", e);
+      }
     }
   };
 
   const handleRemoveHistory = async (id) => {
     setHistory(prev => prev.filter(h => h.id !== id));
-    try {
-      await deleteCustomsDeclarationFromFirestore(id);
-    } catch (e) {
-      console.warn("Firestore declaration delete warning:", e);
+    if (currentUser?.uid) {
+      try {
+        await deleteCustomsDeclarationFromFirestore(id);
+      } catch (e) {
+        console.warn("Firestore declaration delete warning:", e);
+      }
     }
   };
 
-  // 3. Admin Clients Directory & Support Tickets (synced with Firestore)
+  // 3. Admin Clients Directory & Support Tickets (Only active for Administrator)
   const [clients, setClients] = useState(INITIAL_CLIENTS);
   const [tickets, setTickets] = useState(INITIAL_SUPPORT_TICKETS);
 
   useEffect(() => {
+    if (!isAdmin) return;
     const unsubscribeClients = subscribeClients((data) => {
       if (data && data.length > 0) setClients(data);
     });
@@ -117,7 +123,7 @@ function AppContent() {
       unsubscribeClients();
       unsubscribeTickets();
     };
-  }, []);
+  }, [isAdmin]);
 
   const starredTenders = tenders.filter(t => t.starred);
   const pendingTicketsCount = tickets.filter(t => t.status === 'Pending Review').length;
