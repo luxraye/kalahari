@@ -109,21 +109,14 @@ export async function signInWithFirebase(email, password) {
       const userDocRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
-        profile = { ...profile, ...docSnap.data() };
+        profile = { 
+          ...profile, 
+          ...docSnap.data(),
+          // Hard security guarantee: role can never be escalated via doc data
+          role: isMasterAdmin ? "admin" : "client"
+        };
         // Update lastActive timestamp on sign in
         await setDoc(userDocRef, { lastActive: serverTimestamp() }, { merge: true });
-      }
-    } catch (e) {
-      console.warn("Could not fetch user profile from Firestore:", e);
-    }
-  }
-
-  // Fetch full profile from Firestore if available
-  if (db) {
-    try {
-      const docSnap = await getDoc(doc(db, "users", user.uid));
-      if (docSnap.exists()) {
-        profile = { ...profile, ...docSnap.data() };
       }
     } catch (e) {
       console.warn("Could not fetch user profile from Firestore:", e);
@@ -152,18 +145,23 @@ export function onFirebaseAuthStateChanged(callback) {
 
   return onAuthStateChanged(auth, async (user) => {
     if (user) {
+      const isMasterAdmin = MASTER_ADMIN_EMAILS.includes(user.email?.toLowerCase());
       let profile = {
         uid: user.uid,
         email: user.email,
         contactName: user.displayName || "Representative",
-        role: MASTER_ADMIN_EMAILS.includes(user.email?.toLowerCase()) ? "admin" : "client"
+        role: isMasterAdmin ? "admin" : "client"
       };
 
       if (db) {
         try {
           const docSnap = await getDoc(doc(db, "users", user.uid));
           if (docSnap.exists()) {
-            profile = { ...profile, ...docSnap.data() };
+            profile = { 
+              ...profile, 
+              ...docSnap.data(),
+              role: isMasterAdmin ? "admin" : "client"
+            };
           }
         } catch (e) {
           console.warn("Firestore profile fetch error:", e);

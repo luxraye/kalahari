@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { 
-  ShieldCheck, Users, MessageSquare, Radar, DollarSign, Activity, 
-  CheckCircle2, Clock, AlertTriangle, Send, Mail, Phone, Plus, 
-  Trash2, RefreshCw, Zap, Search, ChevronRight, Lock, Database,
-  Server, FileText, Check, ArrowRight, ExternalLink
+  ShieldCheck, Users, MessageSquare, DollarSign, Activity, 
+  CheckCircle2, Send, Mail, Plus, RefreshCw, 
+  ChevronRight, Database, FileText
 } from 'lucide-react';
 import { updateSupportTicketStatus } from '../firebase/dbService';
-import { isFirebaseConfigured } from '../firebase/config';
 
 export default function AdminPanelView({ 
-  clients = [], setClients, 
+  clients = [], 
   tickets = [], setTickets, 
   tenders = [], onAddTender 
 }) {

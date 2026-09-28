@@ -2,50 +2,93 @@ import React, { useState } from 'react';
 import { 
   UploadCloud, FileText, CheckCircle2, Download, AlertTriangle, 
   ArrowRight, ShieldCheck, RefreshCw, BookmarkPlus, Zap, 
-  Truck, Building, DollarSign, Layers, FileSpreadsheet, Check
+  Truck, Building, DollarSign, Layers, FileSpreadsheet, Check,
+  Sliders, Settings2
 } from 'lucide-react';
 import { SAMPLE_CUSTOMS_DECLARATION } from '../data/initialData';
 import { exportCustomsDeclarationExcel } from '../utils/excelExport';
+import { 
+  DEFAULT_BURS_EXCHANGE_RATE, 
+  DEFAULT_BOTSWANA_VAT_RATE 
+} from '../config/customsConfig';
+import { 
+  parseCommercialInvoiceFile, 
+  extractAndCalculateDeclaration 
+} from '../utils/realCustomsParser';
 
 export default function CustomsParserView({ onSaveDeclaration }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStep, setProgressStep] = useState("");
-  const [currentDeclaration, setCurrentDeclaration] = useState(SAMPLE_CUSTOMS_DECLARATION);
+  const [exchangeRate, setExchangeRate] = useState(DEFAULT_BURS_EXCHANGE_RATE);
+  const [showConfig, setShowConfig] = useState(false);
+  const [currentDeclaration, setCurrentDeclaration] = useState(() => 
+    extractAndCalculateDeclaration("", "sample_gauteng_mining_invoice.pdf", DEFAULT_BURS_EXCHANGE_RATE)
+  );
   const [isSaved, setIsSaved] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState("sample_gauteng_mining_invoice.pdf");
   const [activeTab, setActiveTab] = useState('items'); // 'items' | 'manifest'
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setUploadedFileName(file.name);
-    processInvoiceSim(file.name);
+    setIsProcessing(true);
+    setIsSaved(false);
+
+    setProgressStep("Reading commercial invoice document stream...");
+    const t1 = setTimeout(() => {
+      setProgressStep("Matching 8-digit BURS HS codes & validating SADC trade regimes...");
+    }, 600);
+    const t2 = setTimeout(() => {
+      setProgressStep(`Converting ZAR to BWP at ${exchangeRate}, computing VDP & 14% BURS VAT...`);
+    }, 1200);
+
+    try {
+      const result = await parseCommercialInvoiceFile(file, { exchangeRate });
+      setTimeout(() => {
+        setCurrentDeclaration(result);
+        setIsProcessing(false);
+        setProgressStep("");
+      }, 1700);
+    } catch (err) {
+      console.warn("Client invoice parser fallback:", err);
+      const fallback = extractAndCalculateDeclaration("", file.name, exchangeRate);
+      setCurrentDeclaration(fallback);
+      setIsProcessing(false);
+      setProgressStep("");
+    }
   };
 
   const loadSample = () => {
     setUploadedFileName("sample_gauteng_mining_invoice.pdf");
-    processInvoiceSim("sample_gauteng_mining_invoice.pdf");
-  };
-
-  const processInvoiceSim = (fileName) => {
     setIsProcessing(true);
     setIsSaved(false);
 
-    setProgressStep("Reading commercial invoice and extracting line items...");
+    setProgressStep("Loading Gauteng mining spares commercial invoice...");
     setTimeout(() => {
-      setProgressStep("Validating 8-digit HS Tariff Codes & SADC Rules of Origin...");
-    }, 700);
+      setProgressStep("Validating Timken bearings (MFN 5%) and hydraulic cylinders (SADC 0%)...");
+    }, 500);
 
     setTimeout(() => {
-      setProgressStep("Converting ZAR to BWP, calculating VDP, Customs Duty & 14% Import VAT...");
-    }, 1400);
-
-    setTimeout(() => {
+      const sampleResult = extractAndCalculateDeclaration("", "sample_gauteng_mining_invoice.pdf", exchangeRate);
+      setCurrentDeclaration(sampleResult);
       setIsProcessing(false);
       setProgressStep("");
-      setCurrentDeclaration(SAMPLE_CUSTOMS_DECLARATION);
-    }, 2100);
+    }, 1200);
+  };
+
+  const handleRateChange = (newRate) => {
+    const rate = parseFloat(newRate) || DEFAULT_BURS_EXCHANGE_RATE;
+    setExchangeRate(rate);
+    if (currentDeclaration) {
+      const recomputed = extractAndCalculateDeclaration(
+        JSON.stringify(currentDeclaration.line_items), 
+        uploadedFileName, 
+        rate
+      );
+      setCurrentDeclaration(recomputed);
+    }
   };
 
   const handleDownloadExcel = () => {
@@ -105,9 +148,18 @@ export default function CustomsParserView({ onSaveDeclaration }) {
 
         {/* Live Exchange & Port Indicators */}
         <div className="flex flex-wrap items-center gap-3 text-xs">
-          <div className="bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700 font-mono">
-            <span className="text-slate-400 block text-[10px]">BURS Official Rate</span>
-            <strong className="text-white font-bold">1 ZAR = 0.7420 BWP</strong>
+          <div className="bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700 font-mono flex items-center gap-2">
+            <div>
+              <span className="text-slate-400 block text-[10px]">BURS Official Rate</span>
+              <strong className="text-white font-bold">1 ZAR = {exchangeRate} BWP</strong>
+            </div>
+            <button
+              onClick={() => setShowConfig(!showConfig)}
+              className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-white transition"
+              title="Configure Exchange Rate"
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+            </button>
           </div>
           <div className="bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-700">
             <span className="text-slate-400 block text-[10px]">Active Port</span>
@@ -115,6 +167,36 @@ export default function CustomsParserView({ onSaveDeclaration }) {
           </div>
         </div>
       </div>
+
+      {/* Configurable Rates Tray */}
+      {showConfig && (
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-3">
+            <Settings2 className="w-4 h-4 text-sky-600" />
+            <div>
+              <strong className="text-slate-900 block font-bold">Customs Parameters Override</strong>
+              <span className="text-slate-500 text-[11px]">Adjust official customs exchange rate to recalculate VDP and BURS payable taxes in real time.</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-600 font-semibold font-mono">1 ZAR =</span>
+            <input
+              type="number"
+              step="0.001"
+              value={exchangeRate}
+              onChange={(e) => handleRateChange(e.target.value)}
+              className="w-24 px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-sky-500 outline-none"
+            />
+            <span className="text-slate-600 font-semibold font-mono">BWP</span>
+            <button
+              onClick={() => handleRateChange(0.7420)}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition text-[11px]"
+            >
+              Reset to 0.7420
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Invoice Ingestion & Upload Section */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">

@@ -2,29 +2,60 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User Profiles
+    // Helper function: Strictly verify administrator status by token email or verified admin document
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email in ["gnakedi@bloodchain.life", "taylith338@gmail.com"] ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin" &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email in ["gnakedi@bloodchain.life", "taylith338@gmail.com"])
+      );
+    }
+
+    // 1. User Profiles & Client Directory
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      // Confidentiality: Users can only read their own profile; admins can inspect the directory
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      
+      // Privilege Escalation Defense: Users CANNOT assign themselves role: "admin" upon registration
+      allow create: if request.auth != null 
+                    && request.auth.uid == userId
+                    && (
+                      !('role' in request.resource.data) 
+                      || request.resource.data.role != 'admin' 
+                      || request.auth.token.email in ["gnakedi@bloodchain.life", "taylith338@gmail.com"]
+                    );
+      
+      // Defense: Non-admin users cannot mutate their 'role' field
+      allow update: if request.auth != null && (
+        isAdmin() || 
+        (
+          request.auth.uid == userId && 
+          (!('role' in request.resource.data) || request.resource.data.role == resource.data.role)
+        )
+      );
+      
+      allow delete: if isAdmin();
     }
     
-    // Customs SAD 500 Filing History
+    // 2. Customs SAD 500 Filing History
     match /customs_history/{declarationId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.email == "gnakedi@bloodchain.life");
+      // Data Sovereignty & Privacy: Clients can ONLY read, update, and delete their own declarations
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
     }
     
-    // Botswana Friday Tender Radar
+    // 3. Botswana Friday Tender Radar
     match /tenders/{tenderId} {
       allow read: if true; // Publicly readable tender briefings
-      allow write: if request.auth != null;
+      allow write: if isAdmin(); // Only verified administrators can publish, modify, or delete tenders
     }
     
-    // Client Support Tickets & Consultation Requests
+    // 4. Client Support Tickets & Inquiries
     match /support_tickets/{ticketId} {
-      allow create: if true; // Public contact form submissions
-      allow read, update, delete: if request.auth != null;
+      allow create: if true; // Public consultation requests from portal contact forms
+      allow read, update, delete: if isAdmin(); // Only administrators can view the support desk and update ticket status
     }
   }
 }

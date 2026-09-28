@@ -1,0 +1,39 @@
+name: Kalahari CI & Security Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: kalahari-portal/package-lock.json
+
+      - name: Install dependencies
+        working-directory: kalahari-portal
+        run: npm ci
+
+      - name: Run linter (oxlint)
+        working-directory: kalahari-portal
+        run: npm run lint
+
+      - name: Run automated test suite
+        working-directory: kalahari-portal
+        run: npm test
+
+      - name: Verify production build
+        working-directory: kalahari-portal
+        run: npm run build

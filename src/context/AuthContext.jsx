@@ -86,7 +86,7 @@ export function AuthProvider({ children }) {
   };
 
   const isAuthenticated = !!currentUser;
-  const isAdmin = currentUser?.role === "admin";
+  const isAdmin = currentUser?.role === "admin" && MASTER_ADMIN_EMAILS.includes(currentUser?.email?.toLowerCase());
 
   return (
     <AuthContext.Provider value={{
