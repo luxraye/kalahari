@@ -235,23 +235,22 @@ export async function createSupportTicketInFirestore(ticketData) {
 
 export function subscribeSupportTickets(callback) {
   if (!isFirebaseConfigured || !db) {
-    callback(INITIAL_SUPPORT_TICKETS);
+    callback([]);
     return () => {};
   }
 
   return onSnapshot(collection(db, "support_tickets"), (snapshot) => {
     if (!snapshot || snapshot.empty) {
-      callback(INITIAL_SUPPORT_TICKETS);
+      callback([]);
     } else {
       const tickets = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      callback(tickets.length > 0 ? tickets : INITIAL_SUPPORT_TICKETS);
+      callback(tickets);
     }
   }, (err) => {
-    // Quiet fallback if unauthenticated
-    callback(INITIAL_SUPPORT_TICKETS);
+    callback([]);
   });
 }
 
@@ -270,13 +269,13 @@ export async function updateSupportTicketStatus(ticketId, status) {
 
 export function subscribeClients(callback) {
   if (!isFirebaseConfigured || !db) {
-    callback(INITIAL_CLIENTS);
+    callback([]);
     return () => {};
   }
 
   return onSnapshot(collection(db, "users"), (snapshot) => {
     if (!snapshot || snapshot.empty) {
-      callback(INITIAL_CLIENTS);
+      callback([]);
     } else {
       const liveClients = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -287,20 +286,19 @@ export function subscribeClients(callback) {
           tin: data.tin || "C0000000000",
           representative: data.contactName || "Authorized Representative",
           email: data.email || "",
-          phone: data.phone || "+267 71234567",
+          phone: data.phone || "",
           plan: data.role === 'admin' ? "Master Operations" : "Verified Account",
-          feeBwp: data.role === 'admin' ? 0 : 4500,
+          feeBwp: data.role === 'admin' ? 0 : (data.feeBwp || 0),
           invoicesProcessed: data.invoicesProcessed || 0,
           penaltiesPreventedBwp: data.penaltiesPreventedBwp || (data.invoicesProcessed ? data.invoicesProcessed * 10000 : 0),
-          status: "Active",
-          createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate().toLocaleDateString() : "Recent",
-          lastActive: data.lastActive?.toDate?.() ? data.lastActive.toDate().toLocaleDateString() : "Active today"
+          status: data.status || "Active",
+          createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate().toLocaleDateString() : (typeof data.createdAt === 'string' ? data.createdAt : "Recent"),
+          lastActive: data.lastActive?.toDate?.() ? data.lastActive.toDate().toLocaleDateString() : (typeof data.lastActive === 'string' ? data.lastActive : "Today")
         };
       });
-      callback(liveClients.length > 0 ? liveClients : INITIAL_CLIENTS);
+      callback(liveClients);
     }
   }, (err) => {
-    // Quiet fallback if unauthenticated
-    callback(INITIAL_CLIENTS);
+    callback([]);
   });
 }

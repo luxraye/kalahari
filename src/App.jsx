@@ -107,17 +107,17 @@ function AppContent() {
     }
   };
 
-  // 3. Admin Clients Directory & Support Tickets (Only active for Administrator)
-  const [clients, setClients] = useState(INITIAL_CLIENTS);
-  const [tickets, setTickets] = useState(INITIAL_SUPPORT_TICKETS);
+  // 3. Admin Clients Directory & Support Tickets (Strictly real data from Firestore)
+  const [clients, setClients] = useState([]);
+  const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
     if (!isAdmin) return;
     const unsubscribeClients = subscribeClients((data) => {
-      if (data && data.length > 0) setClients(data);
+      setClients(data || []);
     });
     const unsubscribeTickets = subscribeSupportTickets((data) => {
-      if (data && data.length > 0) setTickets(data);
+      setTickets(data || []);
     });
     return () => {
       unsubscribeClients();
