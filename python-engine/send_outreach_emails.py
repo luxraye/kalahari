@@ -1262,8 +1262,33 @@ def dispatch_smtp(dry_run=True):
     server.login(smtp_user, smtp_pass)
 
     import time
-    success_count = 0
+    import json
+    
+    state_file = os.path.join(os.path.dirname(__file__), "sent_campaigns.json")
+    sent_ids = set()
+    if os.path.exists(state_file):
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                sent_ids = set(json.load(f))
+        except Exception:
+            sent_ids = set()
+
+    # Note: customs-01 was successfully transmitted on previous attempt
+    sent_ids.add("customs-01")
+    with open(state_file, "w", encoding="utf-8") as f:
+        json.dump(list(sent_ids), f, indent=2)
+
+    print(f"Loaded sent tracking: {len(sent_ids)} campaigns already dispatched.")
+
+    success_count = len(sent_ids)
     for idx, c in enumerate(OUTREACH_CAMPAIGNS, start=1):
+        if c['id'] in sent_ids and c['id'] != "customs-01":
+            print(f"[SKIP] [{idx}/40] Already sent to {c['company']} ({c['id']})")
+            continue
+        elif c['id'] == "customs-01":
+            print(f"[OK] [1/40] Already dispatched to Dianella Investments (info@dianellaclearing.com)")
+            continue
+
         try:
             msg = MIMEMultipart()
             msg['From'] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
@@ -1273,11 +1298,14 @@ def dispatch_smtp(dry_run=True):
             msg.attach(MIMEText(c['body'], 'plain'))
 
             server.send_message(msg)
-            print(f"✓ [{idx}/40] Dispatched to {c['company']} <{c['to']}>")
+            print(f"[SENT] [{idx}/40] Dispatched to {c['company']} <{c['to']}>")
+            sent_ids.add(c['id'])
+            with open(state_file, "w", encoding="utf-8") as f:
+                json.dump(list(sent_ids), f, indent=2)
             success_count += 1
             time.sleep(1.5)  # respectful pacing for SMTP delivery
         except Exception as e:
-            print(f"✗ [{idx}/40] Failed sending to {c['company']}: {e}")
+            print(f"[FAILED] [{idx}/40] Failed sending to {c['company']}: {e}")
 
     server.quit()
     print(f"\nCompleted: {success_count}/{len(OUTREACH_CAMPAIGNS)} emails sent successfully.")
