@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User Profiles
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Customs SAD 500 Filing History
+    match /customs_history/{declarationId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.email == "gnakedi@bloodchain.life");
+    }
+    
+    // Botswana Friday Tender Radar
+    match /tenders/{tenderId} {
+      allow read: if true; // Publicly readable tender briefings
+      allow write: if request.auth != null;
+    }
+    
+    // Client Support Tickets & Consultation Requests
+    match /support_tickets/{ticketId} {
+      allow create: if true; // Public contact form submissions
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}
