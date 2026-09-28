@@ -44,9 +44,12 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
               <Phone className="w-3 h-3 text-sky-400" />
               <span>+267 72161038</span>
             </a>
-            <a href="mailto:gnakedi@bloodchain.life" className="hover:text-white transition flex items-center gap-1.5">
+            <a href="mailto:gnakedi@bloodchain.life" className="hover:text-white transition flex items-center gap-1.5" title="Primary Corporate">
               <Mail className="w-3 h-3 text-sky-400" />
               <span>gnakedi@bloodchain.life</span>
+            </a>
+            <a href="mailto:taylith338@gmail.com" className="hover:text-white transition hidden lg:inline text-slate-400" title="Direct Engineering Desk">
+              (alt: taylith338@gmail.com)
             </a>
             <span className="text-slate-500 hidden sm:inline">Gaborone, Botswana</span>
           </div>

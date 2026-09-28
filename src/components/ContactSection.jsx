@@ -96,8 +96,9 @@ export default function ContactSection({ userProfile }) {
               <Mail className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase">Corporate Email</div>
-              <a href="mailto:gnakedi@bloodchain.life" className="text-sm font-bold text-slate-900 hover:text-sky-600 transition break-all">gnakedi@bloodchain.life</a>
+              <div className="text-xs font-semibold text-slate-500 uppercase">Direct Email</div>
+              <a href="mailto:gnakedi@bloodchain.life" className="text-sm font-bold text-slate-900 hover:text-sky-600 transition block break-all">gnakedi@bloodchain.life</a>
+              <a href="mailto:taylith338@gmail.com" className="text-xs font-medium text-slate-500 hover:text-sky-600 transition block break-all mt-0.5">Alt: taylith338@gmail.com</a>
             </div>
           </div>
         </div>

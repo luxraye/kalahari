@@ -200,6 +200,9 @@ function AppContent() {
               <a href="mailto:gnakedi@bloodchain.life" className="hover:text-white transition">
                 gnakedi@bloodchain.life
               </a>
+              <a href="mailto:taylith338@gmail.com" className="hover:text-white transition text-slate-400">
+                taylith338@gmail.com
+              </a>
               <a href="tel:+26772161038" className="hover:text-white transition">
                 +267 72161038
               </a>
