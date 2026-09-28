@@ -193,33 +193,70 @@ function AppContent() {
         )}
       </main>
 
-      {/* Footer */}
+      {/* Enterprise Footer */}
       {!isLoginPage && (
-        <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-xs mt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
-              <span className="text-white font-bold text-sm tracking-wide">
-                KALAHARI<span className="text-sky-400">.AI</span>
-              </span>
-              <p className="text-slate-500 mt-1">
-                Autonomous Document Intelligence &amp; Regulatory Solutions &bull; Gaborone, Botswana
-              </p>
+        <footer className="bg-slate-900 text-slate-400 py-14 border-t border-slate-800 text-xs mt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
+              <div className="space-y-3 md:col-span-2">
+                <span className="text-white font-extrabold text-base tracking-wide flex items-center gap-2">
+                  KALAHARI<span className="text-sky-400">.AI</span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-950 text-sky-400 border border-sky-800">BW</span>
+                </span>
+                <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
+                  The sovereign AI platform engineered for Botswana freight forwarders to prevent the BWP 10,000 BURS pre-lodgment fine, and PPRA contractors to capture Friday Gazette tenders before deadline.
+                </p>
+                <div className="text-[11px] text-slate-500 font-mono">
+                  Sovereign Architecture &bull; Section 74 DPA 2018 Certified
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Operating Tracks</h4>
+                <ul className="space-y-2 text-xs">
+                  <li>
+                    <a href="/customs" className="hover:text-white transition">BURS SAD 500 Customs Engine</a>
+                  </li>
+                  <li>
+                    <a href="/tenders" className="hover:text-white transition">Friday Government Gazette Radar</a>
+                  </li>
+                  <li>
+                    <a href="/workspace" className="hover:text-white transition">Client Consignment Vault</a>
+                  </li>
+                  <li>
+                    <a href="#contact-section" className="hover:text-white transition">Enterprise Pilot Consultation</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Lead Architect &amp; Desk</h4>
+                <div className="space-y-1 text-xs text-slate-300">
+                  <div className="font-bold text-white">Gift Jr Letso Nakedi</div>
+                  <div>
+                    <a href="tel:+26772161038" className="hover:text-sky-400 transition font-mono">+267 72161038</a>
+                  </div>
+                  <div>
+                    <a href="mailto:gnakedi@bloodchain.life" className="hover:text-sky-400 transition">gnakedi@bloodchain.life</a>
+                  </div>
+                  <div>
+                    <a href="mailto:taylith338@gmail.com" className="text-slate-400 hover:text-sky-400 transition text-[11px]">taylith338@gmail.com</a>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-6">
-              <span>Lead Architect: <strong>Gift Jr Letso Nakedi</strong></span>
-              <a href="mailto:gnakedi@bloodchain.life" className="hover:text-white transition">
-                gnakedi@bloodchain.life
-              </a>
-              <a href="mailto:taylith338@gmail.com" className="hover:text-white transition text-slate-400">
-                taylith338@gmail.com
-              </a>
-              <a href="tel:+26772161038" className="hover:text-white transition">
-                +267 72161038
-              </a>
-              <a href="/admin" className="hover:text-slate-300 transition text-slate-600 border-l border-slate-800 pl-4">
-                Operations
-              </a>
+
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-slate-500">
+              <p>&copy; {new Date().getFullYear()} Kalahari.ai &bull; Republic of Botswana. All rights reserved.</p>
+              <div className="flex items-center gap-4">
+                <span>Gaborone, Botswana</span>
+                <a href="/admin" className="text-slate-600 hover:text-slate-300 transition border-l border-slate-800 pl-4">
+                  Operations Desk
+                </a>
+              </div>
             </div>
+
           </div>
         </footer>
       )}
