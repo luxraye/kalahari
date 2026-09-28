@@ -144,8 +144,18 @@ function AppContent() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <Routes>
           <Route path="/" element={<LandingPageView />} />
-          <Route path="/customs" element={<CustomsParserView onSaveDeclaration={handleSaveDeclaration} />} />
-          <Route path="/tenders" element={<TenderRadarView tenders={tenders} onToggleStar={toggleStarTender} />} />
+          
+          <Route path="/customs" element={
+            <ProtectedClientRoute>
+              <CustomsParserView onSaveDeclaration={handleSaveDeclaration} />
+            </ProtectedClientRoute>
+          } />
+          
+          <Route path="/tenders" element={
+            <ProtectedClientRoute>
+              <TenderRadarView tenders={tenders} onToggleStar={toggleStarTender} />
+            </ProtectedClientRoute>
+          } />
           
           <Route path="/workspace" element={
             <ProtectedClientRoute>

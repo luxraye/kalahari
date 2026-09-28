@@ -8,6 +8,10 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './config';
 
+export const MASTER_ADMIN_EMAILS = [
+  "gnakedi@bloodchain.life",
+  "taylith338@gmail.com"
+];
 export const MASTER_ADMIN_EMAIL = "gnakedi@bloodchain.life";
 export const MASTER_ADMIN_PASSCODE = "kalahari2026";
 
@@ -15,6 +19,8 @@ export const MASTER_ADMIN_PASSCODE = "kalahari2026";
  * Register a new Botswana company with Firebase Auth and store profile in Firestore
  */
 export async function registerWithFirebase(email, password, profileData) {
+  const isMasterAdmin = MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
+
   if (!isFirebaseConfigured || !auth) {
     // Fallback adapter for offline / unconfigured mode
     const mockUser = {
@@ -25,8 +31,11 @@ export async function registerWithFirebase(email, password, profileData) {
       contactName: profileData.contactName || "Authorized Representative",
       phone: profileData.phone || "+267 71234567",
       ppraCode: profileData.ppraCode || "Customs Clearing Agent",
-      role: email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase() ? "admin" : "client",
-      createdAt: new Date().toISOString()
+      role: isMasterAdmin ? "admin" : "client",
+      invoicesProcessed: 0,
+      penaltiesPreventedBwp: 0,
+      createdAt: new Date().toISOString(),
+      lastActive: new Date().toISOString()
     };
     return mockUser;
   }
@@ -40,7 +49,7 @@ export async function registerWithFirebase(email, password, profileData) {
     await updateProfile(user, { displayName: profileData.contactName });
   }
 
-  const role = email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase() ? "admin" : "client";
+  const role = isMasterAdmin ? "admin" : "client";
 
   // Create user document in Cloud Firestore
   const userProfile = {
@@ -52,7 +61,10 @@ export async function registerWithFirebase(email, password, profileData) {
     phone: profileData.phone || "+267 71234567",
     ppraCode: profileData.ppraCode || "Customs Clearing Agent",
     role: role,
-    createdAt: serverTimestamp()
+    invoicesProcessed: 0,
+    penaltiesPreventedBwp: 0,
+    createdAt: serverTimestamp(),
+    lastActive: serverTimestamp()
   };
 
   if (db) {
@@ -66,11 +78,13 @@ export async function registerWithFirebase(email, password, profileData) {
  * Sign in existing user with Firebase Auth and retrieve profile from Firestore
  */
 export async function signInWithFirebase(email, password) {
-  // Check Master Admin backdoor override if matching passcode
-  if (email.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase() || password === MASTER_ADMIN_PASSCODE) {
+  const isMasterAdmin = MASTER_ADMIN_EMAILS.includes(email.toLowerCase());
+
+  // Check Master Admin passcode override
+  if ((isMasterAdmin || password === MASTER_ADMIN_PASSCODE) && password === MASTER_ADMIN_PASSCODE) {
     return {
       uid: "admin-master",
-      email: MASTER_ADMIN_EMAIL,
+      email: email.includes('@') ? email : MASTER_ADMIN_EMAIL,
       company: "Kalahari.ai Operations (Master)",
       tin: "C0000000001",
       contactName: "Gift Jr Letso Nakedi",
@@ -89,7 +103,7 @@ export async function signInWithFirebase(email, password) {
       tin: "C" + Math.floor(1000000000 + Math.random() * 9000000000),
       contactName: "Corporate Client",
       phone: "+267 71234567",
-      role: "client",
+      role: isMasterAdmin ? "admin" : "client",
       ppraCode: "Customs Clearing Agent"
     };
   }
@@ -102,8 +116,22 @@ export async function signInWithFirebase(email, password) {
     uid: user.uid,
     email: user.email,
     contactName: user.displayName || "Representative",
-    role: user.email?.toLowerCase() === MASTER_ADMIN_EMAIL.toLowerCase() ? "admin" : "client"
+    role: isMasterAdmin ? "admin" : "client"
   };
+
+  if (db) {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        profile = { ...profile, ...docSnap.data() };
+        // Update lastActive timestamp on sign in
+        await setDoc(userDocRef, { lastActive: serverTimestamp() }, { merge: true });
+      }
+    } catch (e) {
+      console.warn("Could not fetch user profile from Firestore:", e);
+    }
+  }
 
   // Fetch full profile from Firestore if available
   if (db) {

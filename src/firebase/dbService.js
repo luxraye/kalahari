@@ -11,7 +11,8 @@ import {
   where,
   orderBy,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
+  increment
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
 import { 
@@ -38,6 +39,21 @@ export async function saveCustomsDeclarationToFirestore(declaration, userId = 'g
   };
 
   const docRef = await addDoc(collection(db, "customs_history"), docData);
+
+  // Update client telemetry and activity metrics in Firestore
+  if (userId && userId !== 'guest') {
+    try {
+      const userRef = doc(db, "users", userId);
+      await setDoc(userRef, {
+        invoicesProcessed: increment(1),
+        penaltiesPreventedBwp: increment(10000),
+        lastActive: serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.warn("Could not update client telemetry in Firestore:", e);
+    }
+  }
+
   return { ...docData, id: docRef.id };
 }
 
@@ -262,22 +278,26 @@ export function subscribeClients(callback) {
     if (!snapshot || snapshot.empty) {
       callback(INITIAL_CLIENTS);
     } else {
-      const clients = snapshot.docs.map(doc => {
+      const liveClients = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
-          name: data.company || "Botswana Client",
+          company: data.company || "Botswana Enterprise",
+          domain: data.ppraCode || "Customs Clearing Agent",
           tin: data.tin || "C0000000000",
-          plan: data.role === 'admin' ? "Master Admin" : "Enterprise Retainer",
-          fee: data.role === 'admin' ? "BWP 0/mo" : "BWP 4,500/mo",
-          status: "Active",
+          representative: data.contactName || "Authorized Representative",
           email: data.email || "",
           phone: data.phone || "+267 71234567",
-          borderPost: "Tlokweng / Pioneer Gate",
-          contactPerson: data.contactName || "Representative"
+          plan: data.role === 'admin' ? "Master Operations" : "Verified Account",
+          feeBwp: data.role === 'admin' ? 0 : 4500,
+          invoicesProcessed: data.invoicesProcessed || 0,
+          penaltiesPreventedBwp: data.penaltiesPreventedBwp || (data.invoicesProcessed ? data.invoicesProcessed * 10000 : 0),
+          status: "Active",
+          createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate().toLocaleDateString() : "Recent",
+          lastActive: data.lastActive?.toDate?.() ? data.lastActive.toDate().toLocaleDateString() : "Active today"
         };
       });
-      callback(clients.length > 0 ? clients : INITIAL_CLIENTS);
+      callback(liveClients.length > 0 ? liveClients : INITIAL_CLIENTS);
     }
   }, (err) => {
     // Quiet fallback if unauthenticated

@@ -40,11 +40,11 @@ export default function LandingPageView() {
           </Link>
 
           <Link
-            to="/login"
-            className="w-full sm:w-auto px-6 py-4 rounded-2xl text-sm font-bold bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-200 flex items-center justify-center gap-2 transition"
+            to="/login?mode=register"
+            className="w-full sm:w-auto px-6 py-4 rounded-2xl text-sm font-bold bg-sky-50 text-sky-900 hover:bg-sky-100 border border-sky-300 shadow-sm flex items-center justify-center gap-2 transition"
           >
-            <Lock className="w-4 h-4 text-sky-600" />
-            <span>Client Portal</span>
+            <ShieldCheck className="w-4 h-4 text-sky-600" />
+            <span>Register Botswana Company</span>
           </Link>
         </div>
 
@@ -176,6 +176,64 @@ export default function LandingPageView() {
             <h4 className="font-bold text-white text-sm">Internet Blackout Immunity</h4>
             <p>Customs entries and invoice parsing function without disruption even during subsea fiber cuts or local network outages.</p>
           </div>
+        </div>
+      </section>
+
+      {/* Enterprise Account Architecture Section */}
+      <section className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-xl space-y-8">
+        <div className="max-w-3xl space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">
+            <Lock className="w-3.5 h-3.5" />
+            <span>Secure Client Infrastructure</span>
+          </div>
+          <h2 className="text-3xl font-extrabold tracking-tight">
+            Centralized Organization For Every Consignment &amp; Tender Bid
+          </h2>
+          <p className="text-sm text-slate-400 leading-relaxed">
+            Kalahari.ai requires authenticated company accounts so your operations are permanently organized, compliant with the BURS statutory framework, and auditable under Botswana law.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold">1</div>
+            <h3 className="text-base font-bold text-white">Permanent Consignment Vault</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Every processed commercial invoice and BURS SAD 500 declaration is stored under your company TIN, ready for instant BURS tax inspections and audit checks.
+            </p>
+          </div>
+
+          <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">2</div>
+            <h3 className="text-base font-bold text-white">Custom PPRA Tender Radar</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Bookmark and monitor Government Gazette notices tailored specifically to your PPRA registration codes (01, 02, 03, 10, 120, 211) with deadline alerts.
+            </p>
+          </div>
+
+          <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">3</div>
+            <h3 className="text-base font-bold text-white">Section 74 DPA Sovereignty</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Your account enforces strict data residency under Botswana Data Protection Act (DPA), ensuring proprietary tariffs and invoices never leak across foreign cloud servers.
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
+          <Link
+            to="/login?mode=register"
+            className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white text-xs flex items-center justify-center gap-2 transition shadow-md"
+          >
+            <span>Create Company Account Now</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            to="/login"
+            className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs flex items-center justify-center gap-2 transition border border-slate-700"
+          >
+            <span>Already Registered? Sign In</span>
+          </Link>
         </div>
       </section>
 

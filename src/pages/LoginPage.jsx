@@ -9,7 +9,8 @@ export default function LoginPage() {
   const { login, registerCompany } = useAuth();
 
   const redirectPath = searchParams.get('redirect') || '/customs';
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+  const [mode, setMode] = useState(initialMode); // 'login' | 'register'
 
   const [formData, setFormData] = useState({
     company: '',
@@ -52,6 +53,24 @@ export default function LoginPage() {
     }
   };
 
+  const getRedirectNotice = () => {
+    if (redirectPath.includes('customs')) {
+      return {
+        title: "BURS Customs Engine Access",
+        text: "Please sign in or register your Botswana clearing firm to process invoices and organize your SAD 500 audit trail."
+      };
+    }
+    if (redirectPath.includes('tenders')) {
+      return {
+        title: "Friday Tender Radar Access",
+        text: "Please sign in or register to track, filter, and bookmark tenders matching your company's PPRA codes."
+      };
+    }
+    return null;
+  };
+
+  const redirectNotice = getRedirectNotice();
+
   return (
     <div className="max-w-md mx-auto my-12 px-4 animate-fade-in">
       <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 mb-6 transition">
@@ -61,6 +80,17 @@ export default function LoginPage() {
 
       <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
         
+        {/* Contextual Notice if redirected */}
+        {redirectNotice && (
+          <div className="bg-sky-50 border border-sky-200/80 rounded-2xl p-3.5 text-xs text-sky-950 flex items-start gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="block font-bold text-sky-900">{redirectNotice.title}</strong>
+              <span className="text-slate-600">{redirectNotice.text}</span>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-slate-900 text-sky-400 flex items-center justify-center mx-auto shadow-md">
@@ -209,7 +239,29 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 pt-4 border-t border-slate-100">
+        {/* Why Accounts Matter Section */}
+        <div className="pt-4 border-t border-slate-100 space-y-2.5 text-left">
+          <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
+            <span>Why Create a Kalahari.ai Company Account?</span>
+          </div>
+          <ul className="text-[11px] text-slate-600 space-y-2">
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+              <span><strong>Consignment Vault:</strong> Organizes every commercial invoice and generated BURS SAD 500 declaration under your company TIN for permanent tax audit defense.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+              <span><strong>Friday Gazette Radar:</strong> Filter, bookmark, and track tenders specifically matching your company's PPRA classification codes.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+              <span><strong>Local Compliance:</strong> Strictly satisfies Section 74 of the Botswana Data Protection Act (DPA) without cross-border cloud leakage.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 pt-2 border-t border-slate-100">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Botswana DPA Section 74 Compliant Architecture</span>
         </div>

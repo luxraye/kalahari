@@ -82,18 +82,24 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
           <NavLink to="/customs" className={navLinkClass}>
             <FileSpreadsheet className="w-4 h-4 text-sky-600" />
             <span>BURS Customs</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-slate-400 ml-0.5" />}
           </NavLink>
 
           <NavLink to="/tenders" className={navLinkClass}>
             <Radar className="w-4 h-4 text-sky-600" />
             <span>Friday Tenders</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-slate-400 ml-0.5" />}
           </NavLink>
 
           <NavLink to="/workspace" className={navLinkClass}>
             <History className="w-4 h-4 text-sky-600" />
             <span>Client Workspace</span>
-            {(starredCount > 0 || historyCount > 0) && (
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            {!isAuthenticated ? (
+              <Lock className="w-3 h-3 text-slate-400 ml-0.5" />
+            ) : (
+              (starredCount > 0 || historyCount > 0) && (
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              )
             )}
           </NavLink>
 
@@ -148,13 +154,21 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition"
-            >
-              <LogIn className="w-3.5 h-3.5 text-sky-400" />
-              <span>Client Portal</span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="text-xs font-bold text-slate-700 hover:text-slate-900 px-2.5 py-2 transition"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/login?mode=register"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition"
+              >
+                <User className="w-3.5 h-3.5 text-sky-400" />
+                <span>Register Company</span>
+              </Link>
+            </div>
           )}
         </div>
       </div>
