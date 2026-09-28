@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import LandingPageView from './components/LandingPageView';
@@ -251,9 +251,11 @@ function AppContent() {
               <p>&copy; {new Date().getFullYear()} Kalahari.ai &bull; Republic of Botswana. All rights reserved.</p>
               <div className="flex items-center gap-4">
                 <span>Gaborone, Botswana</span>
-                <a href="/admin" className="text-slate-600 hover:text-slate-300 transition border-l border-slate-800 pl-4">
-                  Operations Desk
-                </a>
+                {isAdmin && (
+                  <Link to="/admin" className="text-slate-600 hover:text-slate-300 transition border-l border-slate-800 pl-4">
+                    Operations Desk
+                  </Link>
+                )}
               </div>
             </div>
 
