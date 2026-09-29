@@ -18,7 +18,7 @@ SENDER_NAME = "Gift Jr Letso Nakedi"
 SENDER_EMAIL = "taylith338@gmail.com"
 CORPORATE_EMAIL = "gnakedi@bloodchain.life"
 SENDER_PHONE = "+267 72161038"
-PORTAL_URL = "https://kalahari-optis.vercel.app"
+PORTAL_URL = "https://kalahari-optics.vercel.app"
 
 # ==============================================================================
 # 40 INDIVIDUALIZED EMAIL CAMPAIGNS (ZERO PLACEHOLDERS)

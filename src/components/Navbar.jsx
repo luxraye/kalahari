@@ -104,13 +104,11 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
           <NavLink to="/customs" className={navLinkClass}>
             <FileSpreadsheet className="w-4 h-4 text-sky-600" />
             <span>BURS Customs</span>
-            {!isAuthenticated && <Lock className="w-3 h-3 text-slate-400 ml-0.5 opacity-70" />}
           </NavLink>
 
           <NavLink to="/tenders" className={navLinkClass}>
             <Radar className="w-4 h-4 text-sky-600" />
             <span>Friday Tenders</span>
-            {!isAuthenticated && <Lock className="w-3 h-3 text-slate-400 ml-0.5 opacity-70" />}
           </NavLink>
 
           <NavLink to="/workspace" className={navLinkClass}>
@@ -246,7 +244,6 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
               <FileSpreadsheet className="w-4 h-4 text-sky-600" />
               <span>BURS SAD 500 Customs</span>
             </span>
-            {!isAuthenticated && <Lock className="w-3.5 h-3.5 text-slate-400" />}
           </NavLink>
 
           <NavLink 
@@ -258,7 +255,6 @@ export default function Navbar({ starredCount = 0, historyCount = 0, pendingTick
               <Radar className="w-4 h-4 text-sky-600" />
               <span>Friday Tender Radar</span>
             </span>
-            {!isAuthenticated && <Lock className="w-3.5 h-3.5 text-slate-400" />}
           </NavLink>
 
           <NavLink 

@@ -146,15 +146,11 @@ function AppContent() {
           <Route path="/" element={<LandingPageView />} />
           
           <Route path="/customs" element={
-            <ProtectedClientRoute>
-              <CustomsParserView onSaveDeclaration={handleSaveDeclaration} />
-            </ProtectedClientRoute>
+            <CustomsParserView onSaveDeclaration={handleSaveDeclaration} />
           } />
           
           <Route path="/tenders" element={
-            <ProtectedClientRoute>
-              <TenderRadarView tenders={tenders} onToggleStar={toggleStarTender} />
-            </ProtectedClientRoute>
+            <TenderRadarView tenders={tenders} onToggleStar={toggleStarTender} />
           } />
           
           <Route path="/workspace" element={
